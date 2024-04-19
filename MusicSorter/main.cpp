@@ -27,6 +27,7 @@ void PrintRedText(const std::string& text);
 void PrintLightBlueText(const std::string& text);
 void PrintOrderCompleted(const std::string& filename);
 void PrintOrderFailed(const std::string& filename);
+void PrintWrongExtention(const std::string& filename);
 void PrintOrderFailedException(const std::string& execption);
 
 const std::string GetDirectory();
@@ -54,6 +55,13 @@ void SortMusicFiles(const fs::path& path, bool isTestRun)
             const std::string filename{ entry.path().filename().string() };
             std::cout << "Ordering: " << filename << "\n";
             const std::size_t dashPos{ filename.find('-') };
+
+            if (entry.path().extension() != ".mp3")
+            {
+                PrintWrongExtention(filename);
+                ++filesNotSorted;
+                continue;
+            }
 
             if (dashPos == std::string::npos || fs::exists(filename))
             {
@@ -146,6 +154,11 @@ void PrintOrderCompleted(const std::string& filename)
 void PrintOrderFailed(const std::string& filename)
 {
     PrintRedText("Ordering failed with file: " + filename + "\n");
+}
+
+void PrintWrongExtention(const std::string& filename)
+{
+    PrintRedText("Extention not supported: " + filename + "\n");
 }
 
 void PrintOrderFailedException(const std::string& execptionWhat)
