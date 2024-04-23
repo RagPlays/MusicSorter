@@ -12,6 +12,7 @@ enum class ErrorType
     EXEPTIONTHROW,
     WRONG_EXTENTION,
     MULTIPLE_SPACES,
+    MULTIPLE_DASHES,
     WRONG_FORMAT,
     UNSUPPORTED_CHARACTERS
 };
@@ -179,7 +180,7 @@ void PrintErrorLog()
 
     if (!GetYesNo("Do you want a error log?")) return;
 
-    PrintLightBlueText("\n ------------- ErrorLog -------------\n");
+    PrintLightBlueText(" ------------- ErrorLog -------------\n");
 
     size_t nrNonRegularFiles{};
     size_t nrExecptionsThrown{};
@@ -199,6 +200,9 @@ void PrintErrorLog()
             break;
         case ErrorType::MULTIPLE_SPACES:
             PrintRedText("MULTIPLE SPACES::" + error.filename + "\n");
+            break;
+        case ErrorType::MULTIPLE_DASHES:
+            PrintRedText("MULTIPLE DASHES::" + error.filename + "\n");
             break;
         case ErrorType::WRONG_FORMAT:
             PrintRedText("WRONG FORMAT EXTENTION::" + error.filename + "\n");
@@ -338,8 +342,7 @@ bool GetYesNo(const std::string& question)
         {
             PrintRedText("Invalid input. Please try again.\n");
         }
-    }
-    while (input != "Y" && input != "y" && input != "N" && input != "n");
+    } while (input != "Y" && input != "y" && input != "N" && input != "n");
 
     PrintRegularText("\n");
 
@@ -376,6 +379,11 @@ bool IsError(fs::directory_entry entry, const std::string& filename, size_t dash
     {
         isThereError = true;
         g_Errors.emplace_back(Error{ ErrorType::WRONG_EXTENTION, filename });
+    }
+    else if (std::count(filename.begin(), filename.end(), '-') > 1)
+    {
+        isThereError = true;
+        g_Errors.emplace_back(Error{ ErrorType::MULTIPLE_DASHES, filename });
     }
     else if (dashPos == std::string::npos)
     {
@@ -432,7 +440,7 @@ int main()
     EnableVirtualTerminalProcessing();
 
     const fs::path dir{ GetDirectory() };
-    const bool isTestRun{ GetYesNo("Do you want to do a file test run?")};
+    const bool isTestRun{ GetYesNo("Do you want to do a file test run?") };
 
     FolderData folderData{ GetFileData(dir) };
     g_Errors.reserve(folderData.readableFileCount / 3);
